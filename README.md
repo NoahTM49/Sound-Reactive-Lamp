@@ -8,7 +8,8 @@ A sound-reactive desk lamp built around an Elegoo Nano V3.0, a MAX4466 electret 
 Demo: 
 
 Video-
-https://drive.google.com/drive/folders/1lRTrDN0VWTBGdjy6Su5GeiBItlpfIPjo?usp=sharing
+
+https://github.com/user-attachments/assets/0a8d51de-e844-4e49-a3c6-ed6fb9db21a7
 
 Photos-
 Assembled and lit		Tube Open			Circuit withdrawn

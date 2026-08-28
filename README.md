@@ -41,14 +41,7 @@ Mapping: Peak value scaled to a count of lit LEDs using map() with a ceiling of 
 
 Bill of materials:
 
-Item                                                Spec                              Quantity
-Elegoo Nano V3.0                                  ATmega328P                          1
-Microphone Module                          MAX4466 Electret Microphone                1
-LED strip                                   WS2812B 16.4FT 300 LEDs                   1
-Power supply                                 5V, 10A AC/DC Adapter                    1
-Lamp tube                        Frosted Acrylic, 3” OD x 2 ¾” ID x 12” long          1
-Wire                                      22 AWG solid-core jumper wire               As needed
-
+<img width="980" height="215" alt="Screenshot 2026-08-28 113830" src="https://github.com/user-attachments/assets/cb59b6b6-d49d-4f35-b771-5ea4f0bb09d5" />
 
 Firmware:
 
@@ -202,9 +195,4 @@ Arduino-based serial plotter - I used this to observe the mic signal envelope to
 
 Loop Timing Breakdown:
 
-
-Operation                              Time
-Delay(10)                              10ms
-FastLED.show() || 140 x 30 µs          4.2ms
-AnalogRead (A0)                        ~0.1ms
-Total                                  ~14.4ms (roughly 70Hz)
+<img width="640" height="163" alt="Screenshot 2026-08-28 113901" src="https://github.com/user-attachments/assets/e31aa324-10e0-4129-9b9d-fd11bce281a9" />

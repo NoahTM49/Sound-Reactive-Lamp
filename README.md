@@ -1,1 +1,210 @@
-# Sound-Reactive-Lamp
+Sound-Reactive Lamp v1 Prototype
+Built: May, 2026 
+Documented: August, 2026
+Description:
+
+A sound-reactive desk lamp built around an Elegoo Nano V3.0, a MAX4466 electret mic module, and a 140-LED WS2812B strip driven with FastLED. The Arduino Nano samples the ambient sound level at roughly 70 Hz, using both an envelope follower and a fast-decaying peak detector to determine the number of lit LEDs that should glow a blue-to-purple gradient across the strip. The unlit LEDs are kept at a dim floor level to ensure the device still appears to be a lamp when placed in a quiet room. However, due to the few millimeters of clearance within the lamp tube itself, the Arduino Nano and mic were both routed outside of the lamp. I plan to have no hardware sticking outside of the lamp in its next version. 
+
+Demo: 
+
+Video-
+https://drive.google.com/drive/folders/1lRTrDN0VWTBGdjy6Su5GeiBItlpfIPjo?usp=sharing
+
+Photos-
+Assembled and lit		Tube Open			Circuit withdrawn
+<img width="896" height="491" alt="Screenshot 2026-08-28 113226" src="https://github.com/user-attachments/assets/f6db85a7-08c5-4008-8dde-a592e9897096" />
+
+
+
+
+
+
+
+
+Behavior:
+
+Input: A certain sound level picked up by the mic. The lamp is unable to distinguish between bass and treble and reacts to sound in general. Although I would like to figure out how to make this possible in the next version. 
+
+Output: The LEDs range from purple at the base to blue at the top, the lamp is always these colors. Though easily changeable in the code, it isn’t changeable elsewhere. 
+
+Range: Conversation within 5-10 feet is the lowest volume to be picked up by the lamp. If music is played too loudly however, it peaks out and shines as bright as possible.
+
+How It Works:
+
+Pickup: MAX4466 electret module. It has a built-in preamp with adjustable gain on the back of the module. It outputs an analog voltage read at A0.
+
+Baseline calibration: 500 samples averaged at startup to establish the DC bias level.
+
+Detection: It uses an exponential smoothing filter with a peak follower with 0.85 decay per cycle. Deadband below 15 is set to 0. 
+
+Mapping: Peak value scaled to a count of lit LEDs using map() with a ceiling of 80.
+
+Bill of materials:
+
+Item                                                Spec                              Quantity
+Elegoo Nano V3.0                                  ATmega328P                          1
+Microphone Module                          MAX4466 Electret Microphone                1
+LED strip                                   WS2812B 16.4FT 300 LEDs                   1
+Power supply                                 5V, 10A AC/DC Adapter                    1
+Lamp tube                        Frosted Acrylic, 3” OD x 2 ¾” ID x 12” long          1
+Wire                                      22 AWG solid-core jumper wire               As needed
+
+
+Firmware:
+
+Platform: Elegoo Nano V3.0 (ATmega328P), Arduino IDE, C++
+
+Libraries: FastLED
+
+Code: 	
+
+#include <FastLED.h>
+//# of leds
+#define NUM_LEDS 140
+#define DATA_PIN 6
+
+
+CRGB leds[NUM_LEDS];
+
+
+float smoothed = 0;
+float baseline = 0;
+float peak = 0;
+
+
+void setup() {
+  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  //lots of leds, set cap on power
+  FastLED.setMaxPowerInVoltsAndMilliamps(5, 4000);
+ Serial.begin(115200);
+  //stabilizing
+ long total = 0;
+ for (int i = 0; i < 500; i++) {
+  total += analogRead(A0);
+  delay(2);
+ }
+ baseline = total / 500;
+}
+
+
+void loop() {
+  //read and smooth
+  int soundValue = analogRead(A0);
+  smoothed = (smoothed * 0.97) + (soundValue * 0.03);
+
+
+  //sound level
+  int soundLevel = abs(smoothed - baseline);
+  if (soundLevel < 15) soundLevel = 0;
+
+
+  //peak with faster decay for more reactivity
+  if (soundLevel > peak) {
+    peak = soundLevel;
+  } else {
+    peak = peak * 0.85;
+  }
+
+
+  // map peak to leds [lower ceiling = more sensitive (this is the "80" on the map)]
+  int ledsLit = map(peak, 0, 80, 0, NUM_LEDS);
+  ledsLit = constrain(ledsLit, 0, NUM_LEDS);
+
+
+  //gradient purple to blue lawlawl
+  CRGB colorA = CRGB(148, 0, 211);
+  CRGB colorB = CRGB(0, 0, 255);
+
+
+  for (int i = 0; i < NUM_LEDS; i++) {
+    if (i < ledsLit) {
+      uint8_t blendAmount = map(i, 0, NUM_LEDS, 0, 255);
+      leds[i] = blend(colorA, colorB, blendAmount);
+    } else {
+      //ambient glow when not lit by sound, nonlit leds too boring
+      leds[i] = CRGB(20, 0, 30);
+    }
+}
+ 
+
+
+  FastLED.show();
+
+
+  Serial.print(soundLevel);
+  Serial.print(",");
+  Serial.println(peak);
+
+
+  delay(10);
+}
+
+
+
+
+Fit:
+
+The prototype has a cramped fit, which has led to the biggest constraint, hardware sticking out. I used a small, clear PVC I found in my garage to wrap the LEDs around. It was too small to fit the hardware inside of, I learned this the hard way when I broke two of my solder joints on my Elegoo Nano trying to fit it inside of the pipe, twice. Even though it was too small, it was just large enough to leave no room in the acrylic piece for the hardware either.
+
+Mic Mounting: 
+
+The mic is mounted outside of the lamp, it is taped to the side of the lamp. I did this because it was unable to pick up the right audio when inside of the lamp. 
+
+What Version 2 Changes: 
+
+As stated before, I look to have no hardware visible or sticking out of the lamp. I want to use a small and hollow stand for the lamp’s components to lie in. The mic will have a hole to be able to pick up noise but will have nothing else showing besides its electret microphone capsule. Among these changes, I would also like to have the color be changed using a remote or a button. Finally, if I can figure out a way to have the microphone distinguish the difference between bass and treble. 
+
+What I would do differently:
+
+I would slow down. With a 3 week deadline to work on the prototype before my summer classes began, I was determined to finish it before then. If I were to restart though, I would have taken the time to fix the jumper wires being used in a joint that would flex and I would have tried harder to put less strain on certain components. Neither would have taken more than a couple days to fix.  The lesson I took from this is that on a project like this, the electrical design feels like the most important engineering aspect when it really is the packaging and connections that determine whether it survives. 
+
+Appendix:
+
+Datasheets & Part Documentation
+
+MAX4466 - Weewooday electret microphone amplifier module with adjustable gain. Product page: https://www.amazon.com/Electret-Microphone-Amplifier-Adjustable-Breakout/dp/B08N4FNFTR/ref=sr_1_1_sspa?dib=eyJ2IjoiMSJ9.fh3BFvg2sEMm621wa0Ji-rt_pAPeks7H_Yd6NLSL2jClLITcIAcEIOOkQLeTRHjUAJGmSFVM88AxhlPHsV8te8i49gZE1HuL2wACRZVw-ej8wjgwT1a6jyaHSaxz5Og6v3zz1giA-ZfE1ZBpZ_nOjn9Zsz3YDxXq3o3STpJE3sWLMhBsnXtRK5qY7U_OWB5-izm4z1zLF-4ff5ycA_r3sMqOfuFi-oxpSvkmdZzttDc.0G1ooafj_bSZZGyFO6aRHFe5XNaSIS-kjXehK9oDM_U&dib_tag=se&keywords=max4466&qid=1787940111&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1
+Datasheet: Analog Devices, MAX4465–MAX4469.
+
+WS2812B - Intelligent control LED integrated light source. Datasheet: Worldsemi.
+
+ATmega328P - 8-bit AVR microcontroller. Datasheet: Microchip.
+
+References
+
+Music Reactive Desk Light || DIY
+https://youtu.be/5oRir4dck_w?si=xNusLMDWw6s88zuA
+
+Arduino Tutorial 1 through 7
+https://youtu.be/fJWR7dBuc18?si=Eeo2PfMx8ZmUIxts
+https://youtu.be/9uHZB7-T_XA?si=pZz6v3PjOTd_G-du
+https://youtu.be/CfdaJ4z4u4w?si=a507VJ39y4eYZ1lw
+https://youtu.be/nPOKOi1jIK0?si=hq_dedGSeWLX10nf
+https://youtu.be/rTuKKVcYeMg?si=tRHRdmNTaHbj_WEL
+https://youtu.be/Lg39qKrdySU?si=pJa5EnaI_oGQF8bM
+https://youtu.be/6CRhpUV92ww?si=QMQLMWCabZnhFFQG
+
+How to Code Arduino: Beginner’s Tutorial
+https://youtu.be/ZOllXMxLRqc?si=1CjI8bn-YERET0IE
+
+FastLED library documentation - fastled.io
+
+FastLED wiki: power management and setMaxPowerInVoltsAndMilliamps()
+
+Tools
+
+Arduino IDE - firmware development
+
+FastLED - LED driver library
+
+Digital multimeter - supply voltage and current draw verification
+
+Arduino-based serial plotter - I used this to observe the mic signal envelope to tune the threshold.
+
+Loop Timing Breakdown:
+
+
+Operation                              Time
+Delay(10)                              10ms
+FastLED.show() || 140 x 30 µs          4.2ms
+AnalogRead (A0)                        ~0.1ms
+Total                                  ~14.4ms (roughly 70Hz)

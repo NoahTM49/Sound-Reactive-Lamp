@@ -74,7 +74,7 @@ I would slow down. With a 3 week deadline to work on the prototype before my sum
 
 Datasheets & Part Documentation:
 
-MAX4466 - Weewooday electret microphone amplifier module with adjustable gain. Product page: https://www.amazon.com/Electret-Microphone-Amplifier-Adjustable-Breakout/dp/B08N4FNFTR/ref=sr_1_1_sspa?dib=eyJ2IjoiMSJ9.fh3BFvg2sEMm621wa0Ji-rt_pAPeks7H_Yd6NLSL2jClLITcIAcEIOOkQLeTRHjUAJGmSFVM88AxhlPHsV8te8i49gZE1HuL2wACRZVw-ej8wjgwT1a6jyaHSaxz5Og6v3zz1giA-ZfE1ZBpZ_nOjn9Zsz3YDxXq3o3STpJE3sWLMhBsnXtRK5qY7U_OWB5-izm4z1zLF-4ff5ycA_r3sMqOfuFi-oxpSvkmdZzttDc.0G1ooafj_bSZZGyFO6aRHFe5XNaSIS-kjXehK9oDM_U&dib_tag=se&keywords=max4466&qid=1787940111&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1
+MAX4466 - Weewooday electret microphone amplifier module with adjustable gain. Product page: https://www.amazon.com/Electret-Microphone-Amplifier-Adjustable-Breakout/dp/B08N4FNFTR
 Datasheet: Analog Devices, MAX4465–MAX4469.
 
 WS2812B - Intelligent control LED integrated light source. Datasheet: Worldsemi.
